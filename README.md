@@ -37,7 +37,7 @@ Find the differences between days for all counties (i.e. for county X there were
 ## Settting everything up
 Download / pull the repo to your desired location.
 
-You will have to create an AWS s3 user specifficaly for Airlow to interact with the s3 bucket.
+You will have to create an AWS s3 user specifficaly for Airflow to interact with the s3 bucket.
 The credentials for that user will have to be saved in the file [s3](https://github.com/renatootescu/ETL-pipeline/blob/main/airflow-data/creds/s3) found the directory **/airflow-data/creds**:
 
     [airflow-spark1]
@@ -99,7 +99,7 @@ A detailed breakdown on how the code works can be found in the python scripts [*
  - [Spark by examples](https://sparkbyexamples.com/pyspark-tutorial/)
  - [DataScience Made Simple](https://www.datasciencemadesimple.com/pyspark-string-tutorial/)
  - [Precocity](https://precocityllc.com/blog/airflow-and-xcom-inter-task-communication-use-cases/)
- - 
+ - [Databricks](https://databricks.com/blog/2015/07/15/introducing-window-functions-in-spark-sql.html)
 
 ## License
 You can check out the full license [here](https://github.com/renatootescu/ETL-pipeline/blob/main/LICENSE)
