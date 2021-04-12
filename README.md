@@ -93,6 +93,6 @@ On the Graph View page you can see the dag running through its tasks after it ha
 A detailed breakdown on how the code works can be found in the python scripts **dags/dagRun.py** and **sparkFiles/sparkProcess.py**
 
 ## License
->You can check out the full license [here]()
+You can check out the full license [here](https://github.com/renatootescu/ETL-pipeline/blob/main/LICENSE)
 
 This project is licensed under the terms of the **MIT** license.
