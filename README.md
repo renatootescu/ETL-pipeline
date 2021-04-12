@@ -84,11 +84,11 @@ If you modify the dag code, this page has to be refreshed
 
 Click on the name of the dag to open the DAG details page:
 
-<p align="center"><img src=https://user-images.githubusercontent.com/19210522/114457291-8882f800-9be6-11eb-9090-1f45af9f92ea.png)></p>
+<p align="center"><img src=https://user-images.githubusercontent.com/19210522/114457291-8882f800-9be6-11eb-9090-1f45af9f92ea.png></p>
 
 On the Graph View page you can see the dag running through its tasks after it has been unpaused and trigerred:
 
-<p align="center"><img src=https://user-images.githubusercontent.com/19210522/114459521-50c97f80-9be9-11eb-907a-3627a21d52dc.gif)></p>
+<p align="center"><img src=https://user-images.githubusercontent.com/19210522/114459521-50c97f80-9be9-11eb-907a-3627a21d52dc.gif></p>
 
 A detailed breakdown on how the code works can be found in the python scripts **dags/dagRun.py** and **sparkFiles/sparkProcess.py**
 
