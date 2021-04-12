@@ -6,8 +6,8 @@ An AWS s3 bucket is used as a Datalake in which json files are stored. The data 
 #### Note: This project was built for learning purposes and as an example, as such, it functions for only a single scenario and data schema.
 
 The project is built in Python and it has 2 main parts:
-  1. The Airflow DAG file, **dags/dagRun.py**, which orchestrates the data pipeline tasks.
-  2. The PySpark data transformation/processing script, located in **sparkFiles/sparkProcess.py**
+  1. The Airflow DAG file, [**dags/dagRun.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/dags/dagRun.py), which orchestrates the data pipeline tasks.
+  2. The PySpark data transformation/processing script, located in [**sparkFiles/sparkProcess.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/sparkFiles/sparkProcess.py)
 
 The code and especially the comments in the python files are intentionally verbose for a better understanding of the functionality. 
 
@@ -38,13 +38,13 @@ Find the differences between days for all counties (i.e. for county X there were
 Download / pull the repo to your desired location.
 
 You will have to create an AWS s3 user specifficaly for Airlow to interact with the s3 bucket.
-The credentials for that user will have to be saved in the file s3 found the directory **/airflow-data/creds**:
+The credentials for that user will have to be saved in the file [s3](https://github.com/renatootescu/ETL-pipeline/blob/main/airflow-data/creds/s3) found the directory **/airflow-data/creds**:
 
     [airflow-spark1]
     aws_access_key_id = 
     aws_secret_access_key = 
 
-You will also have to enter the mongoDB connection string in the **dags/dagRun.py** script, line 16:
+You will also have to enter the mongoDB connection string in the [**dags/dagRun.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/dags/dagRun.py) script, line 16:
 
     client = pymongo.MongoClient('mongoDB_connection_string')
 
@@ -90,7 +90,16 @@ On the Graph View page you can see the dag running through its tasks after it ha
 
 <p align="center"><img src=https://user-images.githubusercontent.com/19210522/114459521-50c97f80-9be9-11eb-907a-3627a21d52dc.gif></p>
 
-A detailed breakdown on how the code works can be found in the python scripts **dags/dagRun.py** and **sparkFiles/sparkProcess.py**
+A detailed breakdown on how the code works can be found in the python scripts [**dags/dagRun.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/dags/dagRun.py) and [**sparkFiles/sparkProcess.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/sparkFiles/sparkProcess.py)
+
+## Learning resources:
+ - [Marc Lambreti](https://marclamberti.com/)
+ - [Medium](https://medium.com/@itunpredictable/apache-airflow-on-docker-for-complete-beginners-cf76cf7b2c9a)
+ - [Towards Data Science](https://towardsdatascience.com/getting-started-with-airflow-using-docker-cd8b44dbff98)
+ - [Spark by examples](https://sparkbyexamples.com/pyspark-tutorial/)
+ - [DataScience Made Simple](https://www.datasciencemadesimple.com/pyspark-string-tutorial/)
+ - [Precocity](https://precocityllc.com/blog/airflow-and-xcom-inter-task-communication-use-cases/)
+ - 
 
 ## License
 You can check out the full license [here](https://github.com/renatootescu/ETL-pipeline/blob/main/LICENSE)
