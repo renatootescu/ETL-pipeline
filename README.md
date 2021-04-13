@@ -5,10 +5,10 @@
   <a href="#scenario">Scenario</a> •
   <a href="#base-concepts">Base Concepts</a> •
   <a href="#prerequisites">Prerequisites</a> •
-  <a href="#setting-up">Setting up</a> •
+  <a href="#set-up">Set-up</a> •
   <a href="#installation">Installation</a> •
   <a href="#airflow-interface">Airflow Interface</a> •
-  <a href="#shutting-down-and-restarting-airflow">Shutting Down and Restarting Airflow</a> •
+  <a href="#shut-down-and-restart-airflow">Shut Down and Restart Airflow</a> •
   <a href="#learning-resources">Learning Resources</a>
 </p>
 
@@ -55,7 +55,7 @@ Find the differences between days for all counties (i.e. for county X there were
 - [Docker](https://docs.docker.com/get-docker/)
 - [Docker Compose](https://docs.docker.com/compose/)
 
-## Setting up
+## Set-up
 
 Download / pull the repo to your desired location.
 
@@ -124,7 +124,7 @@ On the Graph View page you can see the dag running through its tasks after it ha
 
 <p align="center"><img src=https://user-images.githubusercontent.com/19210522/114459521-50c97f80-9be9-11eb-907a-3627a21d52dc.gif></p>
 
-## Shutting Down and Restarting Airflow
+## Shut Down and Restart Airflow
 
 If you want to make changes to any of the files [docker-compose.yml](https://github.com/renatootescu/ETL-pipeline/blob/main/docker-compose.yml), [Dockerfile](https://github.com/renatootescu/ETL-pipeline/blob/main/Dockerfile), [requirements.txt](https://github.com/renatootescu/ETL-pipeline/blob/main/requirements.txt) you will have to shut down the Airflow instance with:
 
