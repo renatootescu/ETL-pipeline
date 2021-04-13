@@ -8,7 +8,7 @@
   <a href="#setting-up">Setting up</a> •
   <a href="#installation">Installation</a> •
   <a href="#airflow-interface">Airflow Interface</a> •
-  <a href="#shutting-down-and-restarting-airflow">Shutting Down and Restarting Airflow</a>
+  <a href="#shutting-down-and-restarting-airflow">Shutting Down and Restarting Airflow</a> •
   <a href="#learning-resources">Learning Resources</a>
 </p>
 
