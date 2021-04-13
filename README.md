@@ -8,6 +8,7 @@
   <a href="#set-up">Set-up</a> •
   <a href="#installation">Installation</a> •
   <a href="#airflow-interface">Airflow Interface</a> •
+  <a href="#pipeline-task-by-task">Pipeline Task by Task</a> •
   <a href="#shut-down-and-restart-airflow">Shut Down and Restart Airflow</a> •
   <a href="#learning-resources">Learning Resources</a>
 </p>
@@ -16,7 +17,7 @@
 
 ## About
 
-Educational project to buid an ETL (Extract, Transform, Load) data pipeline, orchestrated with Airflow.
+Educational project on how to build an ETL (Extract, Transform, Load) data pipeline, orchestrated with Airflow.
 
 An AWS s3 bucket is used as a Datalake in which json files are stored. The data is extracted from a json and parsed (cleaned). It is then transformed/processed with Spark (PySpark) and loaded/stored in a Mongodb database which has the role of the Data Warehouse.
 
@@ -24,7 +25,7 @@ The pipeline architecture - author's interpretation:
 
 <p align="center"><img src=https://user-images.githubusercontent.com/19210522/114319351-cd8d2880-9b19-11eb-834c-2bdf933fb0ab.png></p>
 
-#### Note: This project was built for learning purposes and as an example, as such, it functions only for a single scenario and data schema.
+#### Note: Since this project was built for learning purposes and as an example, it functions only for a single scenario and data schema.
 
 The project is built in Python and it has 2 main parts:
   1. The Airflow DAG file, [**dags/dagRun.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/dags/dagRun.py), which orchestrates the data pipeline tasks.
@@ -34,18 +35,19 @@ The project is built in Python and it has 2 main parts:
 
 ## Scenario
 
-The Romanian counties COVID-19 data, provided by https://datelazi.ro/ and loaded in the s3 bucket, contains the total covid numbers from one day to the next, but not the difference between the days (i.e. for county X in day 1 there were 7 cases, in day 2 there were 37 cases).
+The Romanian counties COVID-19 data, provided by https://datelazi.ro/ and loaded in the s3 bucket, contains the total COVID numbers from one day to the next, but not the difference between the days (i.e. for county X in day 1 there were 7 cases, in day 2 there were 37 cases).
 Find the differences between days for all counties (i.e. for county X there were 30 more cases from day 1 to day 2). If the difference is smaller than 0 (e.g. because of a data recording error), then that day has a difference of 0.
 
 ## Base concepts
 
- - [ETL](https://en.wikipedia.org/wiki/Extract,_transform,_load)
+ - [ETL (Extract, Transform, Load)](https://en.wikipedia.org/wiki/Extract,_transform,_load)
  - [Pipeline](https://en.wikipedia.org/wiki/Pipeline_(computing))
  - [Data Lake](https://en.wikipedia.org/wiki/Data_lake)
  - [Data Warehouse](https://en.wikipedia.org/wiki/Data_warehouse)
  - [Data Schema](https://en.wikipedia.org/wiki/Database_schema)
  - [Apache Airflow](https://airflow.apache.org/docs/apache-airflow/stable/index.html) ([wikipedia page](https://en.wikipedia.org/wiki/Apache_Airflow))
- - [DAG](https://airflow.apache.org/docs/apache-airflow/stable/concepts.html#dags)
+ - [Airflow DAG](https://airflow.apache.org/docs/apache-airflow/stable/concepts.html#dags)
+ - [Airflow XCom](https://airflow.apache.org/docs/apache-airflow/stable/concepts.html?highlight=xcom#xcoms)
  - [Apache Spark](https://spark.apache.org/), speciffically the [PySpark](https://spark.apache.org/docs/latest/api/python/getting_started/quickstart.html) api ([wikipedia page](https://en.wikipedia.org/wiki/Apache_Spark))
  - [Amazon Web Services (AWS)](https://aws.amazon.com/) ([wikipedia page](https://en.wikipedia.org/wiki/Amazon_Web_Services))
  - [s3](https://aws.amazon.com/s3/) ([wikipedia page](https://en.wikipedia.org/wiki/Amazon_S3))
@@ -54,6 +56,8 @@ Find the differences between days for all counties (i.e. for county X there were
 ## Prerequisites
 - [Docker](https://docs.docker.com/get-docker/)
 - [Docker Compose](https://docs.docker.com/compose/)
+- [AWS s3 bucket](https://docs.aws.amazon.com/AmazonS3/latest/userguide/create-bucket-overview.html)
+- [mongoDB database](https://www.mongodb.com/basics/create-database)
 
 ## Set-up
 
@@ -66,7 +70,7 @@ The credentials for that user will have to be saved in the file [s3](https://git
     aws_access_key_id = 
     aws_secret_access_key = 
 
-You will also have to enter the mongoDB connection string (or environemnt variable or file with the string) in the [**dags/dagRun.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/dags/dagRun.py) script, line 16:
+You will also have to enter the mongoDB connection string (or environment variable or file with the string) in the [**dags/dagRun.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/dags/dagRun.py) script, line 16:
 
     client = pymongo.MongoClient('mongoDB_connection_string')
 
@@ -102,7 +106,7 @@ After everything has been installed, you can check the status of your containers
 
 ## Airflow Interface
 
-You can now access the Airflow web interface by going to http://localhost:8080/. If you have not changed them in teh docker-compose.yml file, the default user is **airflow** and password is **airflow**:
+You can now access the Airflow web interface by going to http://localhost:8080/. If you have not changed them in the docker-compose.yml file, the default user is **airflow** and password is **airflow**:
 
 <p align="center"><img src=https://user-images.githubusercontent.com/19210522/114421290-d5060d80-9bbd-11eb-842e-13a244996200.png></p>
 
@@ -120,9 +124,53 @@ Click on the name of the dag to open the DAG details page:
 
 <p align="center"><img src=https://user-images.githubusercontent.com/19210522/114457291-8882f800-9be6-11eb-9090-1f45af9f92ea.png></p>
 
-On the Graph View page you can see the dag running through its tasks after it has been unpaused and trigerred:
+On the Graph View page you can see the dag running through each task (`getLastProcessedDate`, `getDate`, etc) after it has been unpaused and trigerred:
 
 <p align="center"><img src=https://user-images.githubusercontent.com/19210522/114459521-50c97f80-9be9-11eb-907a-3627a21d52dc.gif></p>
+
+
+## Pipeline Task by Task
+
+#### Task `getLastProcessedDate`
+
+Finds the last processed date in the mongo database and saves/pushes it in an Airflow XCom
+
+#### Task `getDate`
+
+Grabs the data saved in the XCom and depending of the value pulled, returns the task id `parseJsonFile` or the task id `endRun`
+
+#### Task `parseJsonFile`
+
+The json contains unnecessary data for this case, so it needs to be parsed to extract only the daily total numbers for each county. 
+
+If there is any new data to be processed (the date extracted in the task `getLastProcessedDate` is older than dates in the data) it is saved in a temp file in the directory [**sparkFiles**](https://github.com/renatootescu/ETL-pipeline/tree/main/sparkFiles):
+
+<p align="center"><img src=https://user-images.githubusercontent.com/19210522/114530253-725f5100-9c53-11eb-942f-73e07baf281d.png></p>
+
+**i.e.**: for the county AB, on the 7th of April, there were 1946 COVID cases, on the 8th of April there were 19150 cases
+
+It also returns the task id `endRun` if there was no new data, or the task ID `processParsedData`
+
+#### Task `processParsedData`
+
+Executes the PySpark script [**sparkFiles/sparkProcess.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/sparkFiles/sparkProcess.py). 
+
+The parsed data is processed and the result is saved in another temporary file in the [**sparkFiles**](https://github.com/renatootescu/ETL-pipeline/tree/main/sparkFiles) directory:
+
+<p align="center"><img src=https://user-images.githubusercontent.com/19210522/114529905-1bf21280-9c53-11eb-86e7-1f3110b155ce.png></p>
+
+**i.e.**: for the county AB, on the 8th of April there were 104 more cases than on the 7th of April
+
+#### Task `saveToDB`
+
+Save the processed data int the mongoDB database:
+
+<p align="center"><img src=https://user-images.githubusercontent.com/19210522/114542796-0683e500-9c61-11eb-8bfa-be4673a47584.png></p>
+
+#### Task `endRun`
+
+Dummy task used as the end of the pipeline
+
 
 ## Shut Down and Restart Airflow
 
@@ -132,7 +180,7 @@ If you want to make changes to any of the files [docker-compose.yml](https://git
     
 This command will shut down and delete any any containers created used by Airflow
 
-Make the cnages you need to the files and then recreate all of the containters with:
+Make the changes you need to the files and then recreate all of the containters with:
 
     docker-compose up -d
 
