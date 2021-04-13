@@ -101,11 +101,12 @@ On the Graph View page you can see the dag running through its tasks after it ha
 <p align="center"><img src=https://user-images.githubusercontent.com/19210522/114459521-50c97f80-9be9-11eb-907a-3627a21d52dc.gif></p>
 
 ## Learning resources:
+ - [Apache Airflow Documentation](https://airflow.apache.org/docs/apache-airflow/stable/index.html)
+ - [Spark by examples](https://sparkbyexamples.com/pyspark-tutorial/)
+ - [DataScience Made Simple](https://www.datasciencemadesimple.com/pyspark-string-tutorial/)
  - [Marc Lambreti](https://marclamberti.com/)
  - [Medium](https://medium.com/@itunpredictable/apache-airflow-on-docker-for-complete-beginners-cf76cf7b2c9a)
  - [Towards Data Science](https://towardsdatascience.com/getting-started-with-airflow-using-docker-cd8b44dbff98)
- - [Spark by examples](https://sparkbyexamples.com/pyspark-tutorial/)
- - [DataScience Made Simple](https://www.datasciencemadesimple.com/pyspark-string-tutorial/)
  - [Precocity](https://precocityllc.com/blog/airflow-and-xcom-inter-task-communication-use-cases/)
  - [Databricks](https://databricks.com/blog/2015/07/15/introducing-window-functions-in-spark-sql.html)
 
