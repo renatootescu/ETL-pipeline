@@ -1,5 +1,22 @@
-# ETL Pipeline with Airflow, Spark, s3 and MongoDB
-## Description
+<h1 align="center">ETL Pipeline with Airflow, Spark, s3 and MongoDB<h1>
+
+
+<p align="center">
+  <a href="#about">About</a> •
+  <a href="#scenario">Scenario</a> •
+  <a href="#base-concepts">Base Concepts</a> •
+  <a href="#prerequisites">Prerequisites</a> •
+  <a href="#setting-up">Setting up</a> •
+  <a href="#installation">Installation</a> •
+  <a href="#airflow-interface">Airflow Interface</a> •
+  <a href="#shutting-down-and-restarting-airflow">Shutting Down and Restarting Airflow</a>
+  <a href="#learning-resources">Learning Resources</a>
+</p>
+
+---
+
+## About
+
 Educational project to buid an ETL (Extract, Transform, Load) data pipeline, orchestrated with Airflow.
 
 An AWS s3 bucket is used as a Datalake in which json files are stored. The data is extracted from a json and parsed (cleaned). It is then transformed/processed with Spark (PySpark) and loaded/stored in a Mongodb database which has the role of the Data Warehouse.
@@ -17,10 +34,12 @@ The project is built in Python and it has 2 main parts:
 #### Note: The code and especially the comments in the python files [**dags/dagRun.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/dags/dagRun.py) and [**sparkFiles/sparkProcess.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/sparkFiles/sparkProcess.py) are intentionally verbose for a better understanding of the functionality. 
 
 ## Scenario
+
 The Romanian counties COVID-19 data, provided by https://datelazi.ro/ and loaded in the s3 bucket, contains the total covid numbers from one day to the next, but not the difference between the days (i.e. for county X in day 1 there were 7 cases, in day 2 there were 37 cases).
 Find the differences between days for all counties (i.e. for county X there were 30 more cases from day 1 to day 2). If the difference is smaller than 0 (e.g. because of a data recording error), then that day has a difference of 0.
 
 ## Base concepts
+
  - [ETL](https://en.wikipedia.org/wiki/Extract,_transform,_load)
  - [Pipeline](https://en.wikipedia.org/wiki/Pipeline_(computing))
  - [Data Lake](https://en.wikipedia.org/wiki/Data_lake)
@@ -37,7 +56,8 @@ Find the differences between days for all counties (i.e. for county X there were
 - [Docker](https://docs.docker.com/get-docker/)
 - [Docker Compose](https://docs.docker.com/compose/)
 
-## Settting everything up
+## Setting up
+
 Download / pull the repo to your desired location.
 
 You will have to create an AWS s3 user specifficaly for Airflow to interact with the s3 bucket.
@@ -63,11 +83,12 @@ In the repo directory, execute the following command that will create the .env f
     echo -e "AIRFLOW_UID=$(id -u)\nAIRFLOW_GID=0" > .env
 
 ## Installation
+
 Start the installation with:
 
     docker-compose up -d
 
-This command will pull and create Docker images and containers for Airflow, according to the instructions in the docker-compose.yml file:
+This command will pull and create Docker images and containers for Airflow, according to the instructions in the [docker-compose.yml](https://github.com/renatootescu/ETL-pipeline/blob/main/docker-compose.yml) file:
 
 <p align="center"><img src=https://user-images.githubusercontent.com/19210522/114414670-b43ab980-9bb7-11eb-8ea8-061385b14980.gif></p>
 
@@ -80,15 +101,19 @@ After everything has been installed, you can check the status of your containers
 <p align="center"><img src=https://user-images.githubusercontent.com/19210522/114403953-ed6e2c00-9bad-11eb-9e6e-8f85d7fced2e.png></p>
 
 
-## Usage
+## Airflow Interface
 
 You can now access the Airflow web interface by going to http://localhost:8080/. If you have not changed them in teh docker-compose.yml file, the default user is **airflow** and password is **airflow**:
 
 <p align="center"><img src=https://user-images.githubusercontent.com/19210522/114421290-d5060d80-9bbd-11eb-842e-13a244996200.png></p>
 
-The first page you see is the DAGs list page. 
-Any dag python script saved in the dags folder will show up on this page (e.g. the first DAG, analyze_json_data, is the one built for this project).
-If you modify the dag code, this page has to be refreshed
+After signing in, the Airflow home page is the DAGs list page. Here you will see all your DAGs and the Airflow example DAGs, sorted alphabetically. 
+
+Any DAG python script saved in the directory [**dags/**](https://github.com/renatootescu/ETL-pipeline/tree/main/dags), will show up on the DAGs page (e.g. the first DAG, `analyze_json_data`, is the one built for this project).
+
+**Note**: If you update the code in the python DAG script, the airflow DAGs page has to be refreshed
+
+**Note**: If you do not want to see any Airflow example dags, se the `AIRFLOW__CORE__LOAD_EXAMPLES:` flag to `False` in the [docker-compose.yml](https://github.com/renatootescu/ETL-pipeline/blob/main/docker-compose.yml) file before starting the installation.
 
 <p align="center"><img src=https://user-images.githubusercontent.com/19210522/114454069-dbf34700-9be2-11eb-8040-f57407adf856.png></p>
 
@@ -100,7 +125,23 @@ On the Graph View page you can see the dag running through its tasks after it ha
 
 <p align="center"><img src=https://user-images.githubusercontent.com/19210522/114459521-50c97f80-9be9-11eb-907a-3627a21d52dc.gif></p>
 
-## Learning resources:
+## Shutting Down and Restarting Airflow
+
+If you want to make changes to any of the files [docker-compose.yml](https://github.com/renatootescu/ETL-pipeline/blob/main/docker-compose.yml), [Dockerfile](https://github.com/renatootescu/ETL-pipeline/blob/main/Dockerfile), [requirements.txt](https://github.com/renatootescu/ETL-pipeline/blob/main/requirements.txt) you will have to shut down the Airflow instance with:
+
+    docker-compose down
+    
+This command will shut down and delete any any containers created used by Airflow
+
+Make the cnages you need to the files and then recreate all of the containters with:
+
+    docker-compose up -d
+
+
+## Learning Resources
+
+These are some useful learning resources for anyone interested in Airflow and Spark:
+
  - [Apache Airflow Documentation](https://airflow.apache.org/docs/apache-airflow/stable/index.html)
  - [Spark by examples](https://sparkbyexamples.com/pyspark-tutorial/)
  - [DataScience Made Simple](https://www.datasciencemadesimple.com/pyspark-string-tutorial/)
