@@ -40,6 +40,7 @@ Find the differences between days for all counties (i.e. for county X there were
 
 ## Base concepts
 
+ - [Data Engineering](https://realpython.com/python-data-engineer/)
  - [ETL (Extract, Transform, Load)](https://en.wikipedia.org/wiki/Extract,_transform,_load)
  - [Pipeline](https://en.wikipedia.org/wiki/Pipeline_(computing))
  - [Data Lake](https://en.wikipedia.org/wiki/Data_lake)
