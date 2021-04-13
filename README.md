@@ -1,17 +1,20 @@
 # ETL Pipeline with Airflow, Spark, s3 and MongoDB
 ## Description
 Educational project to buid an ETL (Extract, Transform, Load) data pipeline, orchestrated with Airflow.
+
 An AWS s3 bucket is used as a Datalake in which json files are stored. The data is extracted from a json and parsed (cleaned). It is then transformed/processed with Spark (PySpark) and loaded/stored in a Mongodb database which has the role of the Data Warehouse.
 
-#### Note: This project was built for learning purposes and as an example, as such, it functions for only a single scenario and data schema.
+The pipeline architecture - author's interpretation:
+
+<p align="center"><img src=https://user-images.githubusercontent.com/19210522/114319351-cd8d2880-9b19-11eb-834c-2bdf933fb0ab.png></p>
+
+#### Note: This project was built for learning purposes and as an example, as such, it functions only for a single scenario and data schema.
 
 The project is built in Python and it has 2 main parts:
   1. The Airflow DAG file, [**dags/dagRun.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/dags/dagRun.py), which orchestrates the data pipeline tasks.
   2. The PySpark data transformation/processing script, located in [**sparkFiles/sparkProcess.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/sparkFiles/sparkProcess.py)
 
-The code and especially the comments in the python files are intentionally verbose for a better understanding of the functionality. 
-
-<p align="center"><img src=https://user-images.githubusercontent.com/19210522/114319351-cd8d2880-9b19-11eb-834c-2bdf933fb0ab.png></p>
+#### Note: The code and especially the comments in the python files [**dags/dagRun.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/dags/dagRun.py) and [**sparkFiles/sparkProcess.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/sparkFiles/sparkProcess.py) are intentionally verbose for a better understanding of the functionality. 
 
 ## Scenario
 The Romanian counties COVID-19 data, provided by https://datelazi.ro/ and loaded in the s3 bucket, contains the total covid numbers from one day to the next, but not the difference between the days (i.e. for county X in day 1 there were 7 cases, in day 2 there were 37 cases).
@@ -38,15 +41,22 @@ Find the differences between days for all counties (i.e. for county X there were
 Download / pull the repo to your desired location.
 
 You will have to create an AWS s3 user specifficaly for Airflow to interact with the s3 bucket.
-The credentials for that user will have to be saved in the file [s3](https://github.com/renatootescu/ETL-pipeline/blob/main/airflow-data/creds/s3) found the directory **/airflow-data/creds**:
+The credentials for that user will have to be saved in the file [s3](https://github.com/renatootescu/ETL-pipeline/blob/main/airflow-data/creds/s3) found the directory [**/airflow-data/creds**](https://github.com/renatootescu/ETL-pipeline/tree/main/airflow-data/creds):
 
     [airflow-spark1]
     aws_access_key_id = 
     aws_secret_access_key = 
 
-You will also have to enter the mongoDB connection string in the [**dags/dagRun.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/dags/dagRun.py) script, line 16:
+You will also have to enter the mongoDB connection string (or environemnt variable or file with the string) in the [**dags/dagRun.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/dags/dagRun.py) script, line 16:
 
     client = pymongo.MongoClient('mongoDB_connection_string')
+
+You will have to change the s3 bucket name and file key (the name of the file saved in the s3 bucket) located at lines 109 to line 111 in the [**dags/dagRun.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/dags/dagRun.py) script: 
+
+    # name of the file in the AWS s3 bucket
+    key = 'countyData.json'
+    # name of the AWS s3 bucket
+    bucket = 'renato-airflow-raw'
 
 In the repo directory, execute the following command that will create the .env file containig the Airflow UID and GID needed by docker-compose:
 
@@ -65,7 +75,7 @@ After everything has been installed, you can check the status of your containers
 
     docker ps
 
-**Note**: it might take 30 seconds for the containers to have the **healthy** flag after starting.
+**Note**: it might take up to 30 seconds for the containers to have the **healthy** flag after starting.
 
 <p align="center"><img src=https://user-images.githubusercontent.com/19210522/114403953-ed6e2c00-9bad-11eb-9e6e-8f85d7fced2e.png></p>
 
@@ -89,8 +99,6 @@ Click on the name of the dag to open the DAG details page:
 On the Graph View page you can see the dag running through its tasks after it has been unpaused and trigerred:
 
 <p align="center"><img src=https://user-images.githubusercontent.com/19210522/114459521-50c97f80-9be9-11eb-907a-3627a21d52dc.gif></p>
-
-A detailed breakdown on how the code works can be found in the python scripts [**dags/dagRun.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/dags/dagRun.py) and [**sparkFiles/sparkProcess.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/sparkFiles/sparkProcess.py)
 
 ## Learning resources:
  - [Marc Lambreti](https://marclamberti.com/)
