@@ -32,11 +32,11 @@ def getDBdate(ti):
 
     # try-except error handler: if the db aggregation fails, return None to not process the same data multiple times
     try:
-        # Find the document that was previously written
+        # Find the the latest database document
         # filter for the Mongo db aggregation: the key 'dateFor' has to be exist in the collection
         aggFilter = {'dateFor': {'$exists': True}}
-        # in access the collection/table (db.countyDiff), apply the filter to the aggregation, convert the dates
-        # from str to datetime, sort decreasing and return one
+        # in the collection/table (db.countyDiff), apply the filter to the aggregation, convert the dates
+        # from str to datetime, sort descending and return one (the first one)
         dateDoc = list(db.countyDiff.aggregate([{'$match': aggFilter},
                                                 {'$project': {
                                                     'date': {
