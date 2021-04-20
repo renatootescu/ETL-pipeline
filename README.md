@@ -23,7 +23,7 @@ An AWS s3 bucket is used as a Datalake in which json files are stored. The data 
 
 The pipeline architecture - author's interpretation:
 
-<p align="center"><img src=https://user-images.githubusercontent.com/19210522/114319351-cd8d2880-9b19-11eb-834c-2bdf933fb0ab.png></p>
+<p align="center"><img src=https://user-images.githubusercontent.com/19210522/115469209-e3e36480-a23c-11eb-8d19-01eb1a0fb5a9.png></p>
 
 #### Note: Since this project was built for learning purposes and as an example, it functions only for a single scenario and data schema.
 
@@ -53,6 +53,7 @@ Find the differences between days for all counties (i.e. for county X there were
  - [Apache Spark](https://spark.apache.org/), speciffically the [PySpark](https://spark.apache.org/docs/latest/api/python/getting_started/quickstart.html) api ([wikipedia page](https://en.wikipedia.org/wiki/Apache_Spark))
  - [Amazon Web Services (AWS)](https://aws.amazon.com/) ([wikipedia page](https://en.wikipedia.org/wiki/Amazon_Web_Services))
  - [s3](https://aws.amazon.com/s3/) ([wikipedia page](https://en.wikipedia.org/wiki/Amazon_S3))
+ - [Redshift](https://aws.amazon.com/redshift/?whats-new-cards.sort-by=item.additionalFields.postDateTime&whats-new-cards.sort-order=desc) ([Wikipedia page](https://en.wikipedia.org/wiki/Amazon_Redshift))
  - [mongoDB](https://www.mongodb.com/) ([wikipedia page](https://en.wikipedia.org/wiki/MongoDB))
 
 ## Prerequisites
@@ -72,11 +73,25 @@ The credentials for that user will have to be saved in the [s3 file](https://git
     aws_access_key_id = 
     aws_secret_access_key = 
 
-You will also have to enter the mongoDB connection string (or environment variable or file with the string) in the [**dags/dagRun.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/dags/dagRun.py) script, line 16:
+On rows 17 and 18 in the [**dags/dagRun.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/dags/dagRun.py) you have the option to choose what databases system to use, mongoDB (noSQL) or Amazon Redshift (RDBMS), just by commenting/uncommenting one or the other:
+
+    # database = 'mongoDB'
+    database = 'Redshift'
+
+If you want to use **mongoDB**, you will have to enter the mongoDB connection string (or environment variable or file with the string) in the [**dags/dagRun.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/dags/dagRun.py) script, line 22:
 
     client = pymongo.MongoClient('mongoDB_connection_string')
+    
+If you want to use a **Redshift** cluster, you will have to provide your Amazon Redshift database name, host and the rest of the credentials from row 29 to 34 in the [**dags/dagRun.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/dags/dagRun.py) file:
+    
+    dbname = 'testairflow'
+    host = '*******************************.eu-central-1.redshift.amazonaws.com'
+    port = '****'
+    user = '*********'
+    password = '********************'
+    awsIAMrole = 'arn:aws:iam::************:role/*******
 
-You will have to change the s3 bucket name and file key (the name of the file saved in the s3 bucket) located at lines 109 to line 111 in the [**dags/dagRun.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/dags/dagRun.py) script: 
+You will have to change the s3 bucket name and file key (the name of the file saved in the s3 bucket) located at lines 148 and line 150 in the [**dags/dagRun.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/dags/dagRun.py) script: 
 
     # name of the file in the AWS s3 bucket
     key = 'countyData.json'
@@ -165,9 +180,15 @@ The parsed data is processed and the result is saved in another temporary file i
 
 #### Task `saveToDB`
 
-Save the processed data int the mongoDB database:
+Save the processed data either in the **mongoDB** database:
 
 <p align="center"><img src=https://user-images.githubusercontent.com/19210522/114542796-0683e500-9c61-11eb-8bfa-be4673a47584.png></p>
+
+Or in **Redshift**:
+
+<p align="center"><img src=https://user-images.githubusercontent.com/19210522/115469801-f611d280-a23d-11eb-8541-e0a34530096f.png></p>
+
+**Note**: The Redshift column names are the full name of the counties as the short version for some of them conflicts with SQL reserved words
 
 #### Task `endRun`
 
@@ -176,13 +197,13 @@ Dummy task used as the end of the pipeline
 
 ## Shut Down and Restart Airflow
 
-If you want to make changes to any of the files [docker-compose.yml](https://github.com/renatootescu/ETL-pipeline/blob/main/docker-compose.yml), [Dockerfile](https://github.com/renatootescu/ETL-pipeline/blob/main/Dockerfile), [requirements.txt](https://github.com/renatootescu/ETL-pipeline/blob/main/requirements.txt) you will have to shut down the Airflow instance with:
+If you want to make changes to any of the configuration files [docker-compose.yml](https://github.com/renatootescu/ETL-pipeline/blob/main/docker-compose.yml), [Dockerfile](https://github.com/renatootescu/ETL-pipeline/blob/main/Dockerfile), [requirements.txt](https://github.com/renatootescu/ETL-pipeline/blob/main/requirements.txt) you will have to shut down the Airflow instance with:
 
     docker-compose down
     
 This command will shut down and delete any containers created/used by Airflow.
 
-For the changes to be applied, you will have to rebuild the Airflow images with the command:
+For any changes made in the configuration files to be applied, you will have to rebuild the Airflow images with the command:
 
     docker-compose build
 
