@@ -1,4 +1,4 @@
-<h1 align="center">ETL Pipeline with Airflow, Spark, s3 and MongoDB or Amazon Redshift</h1>
+<h1 align="center">ETL Pipeline with Airflow, Spark, s3, MongoDB and Amazon Redshift</h1>
 
 <p align="center">
   <a href="#about">About</a> •
