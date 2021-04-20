@@ -73,16 +73,16 @@ The credentials for that user will have to be saved in the [s3 file](https://git
     aws_access_key_id = 
     aws_secret_access_key = 
 
-On rows 17 and 18 in the [**dags/dagRun.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/dags/dagRun.py) you have the option to choose what databases system to use, mongoDB (noSQL) or Amazon Redshift (RDBMS), just by commenting/uncommenting one or the other:
+On rows 17 and 18 in [**dags/dagRun.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/dags/dagRun.py) you have the option to choose what databases system to use, mongoDB (noSQL) or Amazon Redshift (RDBMS), just by commenting/uncommenting one or the other:
 
     # database = 'mongoDB'
     database = 'Redshift'
 
-If you want to use **mongoDB**, you will have to enter the mongoDB connection string (or environment variable or file with the string) in the [**dags/dagRun.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/dags/dagRun.py) script, line 22:
+If you want to use **mongoDB**, you will have to enter the mongoDB connection string (or environment variable or file with the string) in the [**dags/dagRun.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/dags/dagRun.py) file, line 22:
 
     client = pymongo.MongoClient('mongoDB_connection_string')
     
-If you want to use a **Redshift** cluster, you will have to provide your Amazon Redshift database name, host and the rest of the credentials from row 29 to 34 in the [**dags/dagRun.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/dags/dagRun.py) file:
+If you want to use a **Redshift** cluster, you will have to provide your Amazon Redshift database name, host and the rest of the credentials from row 29 to 34 in [**dags/dagRun.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/dags/dagRun.py):
     
     dbname = 'testairflow'
     host = '*******************************.eu-central-1.redshift.amazonaws.com'
@@ -91,7 +91,7 @@ If you want to use a **Redshift** cluster, you will have to provide your Amazon 
     password = '********************'
     awsIAMrole = 'arn:aws:iam::************:role/*******
 
-You will have to change the s3 bucket name and file key (the name of the file saved in the s3 bucket) located at lines 148 and line 150 in the [**dags/dagRun.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/dags/dagRun.py) script: 
+You will have to change the s3 bucket name and file key (the name of the file saved in the s3 bucket) located at lines 148 and line 150 in [**dags/dagRun.py**](https://github.com/renatootescu/ETL-pipeline/blob/main/dags/dagRun.py): 
 
     # name of the file in the AWS s3 bucket
     key = 'countyData.json'
