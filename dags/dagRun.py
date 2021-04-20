@@ -11,7 +11,6 @@ from airflow.operators.python_operator import BranchPythonOperator
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 import psycopg2
-import csv
 
 # select the database system to be used: mongoDB (noSQL) or Amazon Redshift (RDBMS)
 # database = 'mongoDB'
