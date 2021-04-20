@@ -10,13 +10,29 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.operators.python_operator import BranchPythonOperator
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
+import psycopg2
+import csv
 
+# select the database system to be used: mongoDB (noSQL) or Amazon Redshift (RDBMS)
+# database = 'mongoDB'
+database = 'Redshift'
 
-# the mongo DB connection string
-client = pymongo.MongoClient('mongoDB_connection_string')
+if database == 'mongoDB':
+    # connect to the MONGO database
+    # the mongo DB connection string
+    client = pymongo.MongoClient('mongoDB_connection_string')
+    # the database to be used
+    db = client.testairflow
 
-# the database to be used
-db = client.testairflow
+else:
+    # Amazon Redshift database connection details
+    # the details bellow can also be saved in environment variables
+    dbname = 'testairflow'
+    host = '*******************************.eu-central-1.redshift.amazonaws.com'
+    port = '****'
+    user = '*********'
+    password = '********************'
+    awsIAMrole = 'arn:aws:iam::************:role/*******'
 
 
 def getDBdate(ti):
@@ -32,29 +48,53 @@ def getDBdate(ti):
 
     # try-except error handler: if the db aggregation fails, return None to not process the same data multiple times
     try:
-        # Find the the latest database document
-        # filter for the Mongo db aggregation: the key 'dateFor' has to be exist in the collection
-        aggFilter = {'dateFor': {'$exists': True}}
-        # in the collection/table (db.countyDiff), apply the filter to the aggregation, convert the dates
-        # from str to datetime, sort descending and return one (the first one)
-        dateDoc = list(db.countyDiff.aggregate([{'$match': aggFilter},
-                                                {'$project': {
-                                                    'date': {
-                                                        '$dateFromString': {
-                                                            'dateString': '$dateFor',
-                                                            'format': '%Y-%m-%d'}
-                                                    }
-                                                }},
-                                                {'$sort': {'date': -1}},
-                                                {'$limit': 1}
-                                                ]))
+        if database == 'mongoDB':
+            # >>> use the MONGO database
+            # Find the the latest database document
+            # filter for the Mongo db aggregation: the key 'dateFor' has to be exist in the collection
+            aggFilter = {'dateFor': {'$exists': True}}
+            # in the collection/table (db.countyDiff), apply the filter to the aggregation, convert the dates
+            # from str to datetime, sort descending and return one (the first one)
+            dateDoc = list(db.countyDiff.aggregate([{'$match': aggFilter},
+                                                    {'$project': {
+                                                        'date': {
+                                                            '$dateFromString': {
+                                                                'dateString': '$dateFor',
+                                                                'format': '%Y-%m-%d'}
+                                                        }
+                                                    }},
+                                                    {'$sort': {'date': -1}},
+                                                    {'$limit': 1}
+                                                    ]))
 
-        # try-except error handler to set base parsing start date if the aggregation above returns and empty
-        # list (i.e.: no data found)
-        try:
-            fetchedDate = dateDoc[0]['date'].strftime('%Y-%m-%d')
-        except:
-            fetchedDate = '2020-01-01'
+            # try-except error handler to set base parsing start date if the aggregation above returns and empty
+            # list (i.e.: no data found)
+            try:
+                fetchedDate = dateDoc[0]['date'].strftime('%Y-%m-%d')
+            except:
+                fetchedDate = '2020-01-01'
+
+        else:
+            # >>> use the AMAZON REDSHIFT database
+            # set up the connection to the Redshift database
+            conn = psycopg2.connect(f'dbname={dbname} host={host} port={port} user={user} password={password}')
+            # start the database cursor
+            cursor = conn.cursor()
+            # grab the latest date from the counties collection
+            sql = """SELECT dateFor FROM counties ORDER BY dateFor DESC LIMIT 1;"""
+            # try-except error handler to return a parsing start date in case the cursor execute fails
+            try:
+                cursor.execute(sql)
+                # convert the date from datetime to string
+                fetchedDate = cursor.fetchall()[0][0].strftime('%Y-%m-%d')
+                # close the connection and cursor
+                cursor.close()
+                conn.close()
+            except:
+                fetchedDate = '2020-01-01'
+                cursor.close()
+                conn.close()
+
     except:
         fetchedDate = None
 
@@ -129,8 +169,8 @@ def readJsonData(ti):
             dfData = []
             # for each date (key) in the 'historicalData' dictionary
             for key in jsonData['historicalData'].keys():
-                # if the last db date is smaller/earlier than the date key
-                if lastDBDate < datetime.datetime.strptime(key, '%Y-%m-%d'):
+                # if the last db date is smaller/earlier or equal with the date key
+                if lastDBDate <= datetime.datetime.strptime(key, '%Y-%m-%d'):
                     # check if the value containing teh data is a dictionary. This way None values are skipped.
                     if type(jsonData["historicalData"][key]['countyInfectionsNumbers']) == dict:
                         # create a new empty dict for each date
@@ -162,30 +202,78 @@ def readJsonData(ti):
         return 'endRun'
 
 
-def uploadToDB():
+def uploadToDB(ti):
     """
     Upload the results data to the database
     """
-
     results = '/opt/airflow/sparkFiles/results.csv'
+
+    # get the date from the xcom
+    fetchedDate = ti.xcom_pull(key='fetchedDate', task_ids=['getLastProcessedDate'])
+    lastDBDate = fetchedDate[0]
 
     # read the results CSV to a Pandas dataframe
     pandasDf = pd.read_csv(results)
-    # convert to a list of dictionary objects
-    resultsList = pandasDf.to_dict(orient='records')
-    # save the data to the database as bulk
-    # insertToDB = db.countyDiff.insert_many(resultsList)
+    # remove the row that has the same dateFor as the previously last processed date to avoid any data errors
+    newDf = pd.concat([pandasDf.loc[pandasDf.dateFor != lastDBDate]])
 
-    # save data by replacing documents already found in the collection if the dateFor fields match, if not insert
-    # new document by setting the upsert flag to True
-    for item in resultsList:
-        insertToDB = db.countyDiff.replace_one({'dateFor': item['dateFor']},
-                                               item,
-                                               upsert=True)
+    if database == 'mongoDB':
+        # >>> using the MONGO database
+
+        # convert to a list of dictionary objects
+        resultsList = newDf.to_dict(orient='records')
+        # save the data to the database as bulk
+        # insertToDB = db.countyDiff.insert_many(resultsList)
+
+        # save data by replacing documents already found in the collection if the dateFor fields match, if not insert
+        # new document by setting the upsert flag to True
+        for item in resultsList:
+            insertToDB = db.countyDiff.replace_one({'dateFor': item['dateFor']},
+                                                   item,
+                                                   upsert=True)
+
+    else:
+        # >>> using the AMAZON REDSHIFT database
+
+        # overwrite the CSV with the new data
+        newDf.to_csv(results,
+                     sep=',',
+                     header=True,
+                     index=False)
+        #upload results csv to S3
+        # s3 hook object
+        hook = S3Hook()
+        # name of the file in the AWS s3 bucket
+        key = 'results.csv'
+        # name of the AWS s3 bucket
+        bucket = 'renato-airflow-raw'
+        # load/upload the results file to the s3 bucket
+        loadToS3 = hook.load_file(
+            filename=results,
+            key=key,
+            bucket_name=bucket,
+            replace=True
+        )
+
+        # set up the connection to the Redshift database
+        conn = psycopg2.connect(f'dbname={dbname} host={host} port={port} user={user} password={password}')
+        # start the database cursor
+        cursor = conn.cursor()
+        # COPY the data from the s3 loaded file into the Redshift counties collection.
+        # the COPY command only appends the CSV data to the table. It does not replace
+        sql = f"""COPY counties FROM 's3://renato-airflow-raw/results.csv' 
+                  iam_role '{awsIAMrole}' 
+                  DELIMITER AS ',' 
+                  DATEFORMAT 'YYYY-MM-DD' 
+                  IGNOREHEADER 1 ;"""
+
+        cursor.execute(sql)
+        conn.commit()
+        cursor.close()
+        conn.close()
 
     # delete the parsed data csv from the working directory
     os.remove(results)
-    # pass
 
 
 # set up DAG arguments

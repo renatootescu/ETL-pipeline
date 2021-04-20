@@ -1,4 +1,4 @@
-<h1 align="center">ETL Pipeline with Airflow, Spark, s3 and MongoDB</h1>
+<h1 align="center">ETL Pipeline with Airflow, Spark, s3 and MongoDB or Amazon Redshift</h1>
 
 <p align="center">
   <a href="#about">About</a> •
@@ -19,7 +19,7 @@
 
 Educational project on how to build an ETL (Extract, Transform, Load) data pipeline, orchestrated with Airflow.
 
-An AWS s3 bucket is used as a Datalake in which json files are stored. The data is extracted from a json and parsed (cleaned). It is then transformed/processed with Spark (PySpark) and loaded/stored in a Mongodb database which has the role of the Data Warehouse.
+An AWS s3 bucket is used as a Datalake in which json files are stored. The data is extracted from a json and parsed (cleaned). It is then transformed/processed with Spark (PySpark) and loaded/stored in either a Mongodb database or in an Amazon Redshift Data Warehouse.
 
 The pipeline architecture - author's interpretation:
 
@@ -180,9 +180,13 @@ If you want to make changes to any of the files [docker-compose.yml](https://git
 
     docker-compose down
     
-This command will shut down and delete any any containers created used by Airflow
+This command will shut down and delete any containers created used by Airflow.
 
-Make the changes you need to the files and then recreate all of the containters with:
+For the changes to be applied, you will have to rebuild the Airflow images with the command:
+
+    docker-compose build
+
+Recreate all the containers with:
 
     docker-compose up -d
 
