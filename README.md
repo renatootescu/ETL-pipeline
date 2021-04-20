@@ -180,7 +180,7 @@ If you want to make changes to any of the files [docker-compose.yml](https://git
 
     docker-compose down
     
-This command will shut down and delete any containers created used by Airflow.
+This command will shut down and delete any containers created/used by Airflow.
 
 For the changes to be applied, you will have to rebuild the Airflow images with the command:
 
