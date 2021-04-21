@@ -19,11 +19,11 @@
 
 Educational project on how to build an ETL (Extract, Transform, Load) data pipeline, orchestrated with Airflow.
 
-An AWS s3 bucket is used as a Datalake in which json files are stored. The data is extracted from a json and parsed (cleaned). It is then transformed/processed with Spark (PySpark) and loaded/stored in either a Mongodb database or in an Amazon Redshift Data Warehouse.
+An AWS s3 bucket is used as a Data Lake in which json files are stored. The data is extracted from a json and parsed (cleaned). It is then transformed/processed with Spark (PySpark) and loaded/stored in either a Mongodb database or in an Amazon Redshift Data Warehouse.
 
 The pipeline architecture - author's interpretation:
 
-<p align="center"><img src=https://user-images.githubusercontent.com/19210522/115515743-19fd0480-a28e-11eb-9de8-d6dcc52d075d.png></p>
+<p align="center"><img src=https://user-images.githubusercontent.com/19210522/115540283-9b609100-a2a6-11eb-9f48-08f3a17528d8.png></p>
 
 #### Note: Since this project was built for learning purposes and as an example, it functions only for a single scenario and data schema.
 
