@@ -23,7 +23,7 @@ An AWS s3 bucket is used as a Datalake in which json files are stored. The data 
 
 The pipeline architecture - author's interpretation:
 
-<p align="center"><img src=https://user-images.githubusercontent.com/19210522/115469209-e3e36480-a23c-11eb-8d19-01eb1a0fb5a9.png></p>
+<p align="center"><img src=https://user-images.githubusercontent.com/46559647/115514343-ab6b7700-a28c-11eb-8ed9-d3dc0ff3f172.png></p>
 
 #### Note: Since this project was built for learning purposes and as an example, it functions only for a single scenario and data schema.
 
