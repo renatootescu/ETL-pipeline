@@ -61,6 +61,7 @@ Find the differences between days for all counties (i.e. for county X there were
 - [Docker Compose](https://docs.docker.com/compose/)
 - [AWS s3 bucket](https://docs.aws.amazon.com/AmazonS3/latest/userguide/create-bucket-overview.html)
 - [mongoDB database](https://www.mongodb.com/basics/create-database)
+- [Amazon Redshift database](https://docs.aws.amazon.com/redshift/latest/gsg/getting-started.html)
 
 ## Set-up
 
