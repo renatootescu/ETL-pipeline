@@ -165,7 +165,7 @@ If there is any new data to be processed (the date extracted in the task `getLas
 
 <p align="center"><img src=https://user-images.githubusercontent.com/19210522/114530253-725f5100-9c53-11eb-942f-73e07baf281d.png></p>
 
-**i.e.**: for the county AB, on the 7th of April, there were 1946 COVID cases, on the 8th of April there were 19150 cases
+**i.e.**: for the county AB, on the 7th of April, there were 19046 COVID cases, on the 8th of April there were 19150 cases
 
 It also returns the task id `endRun` if there was no new data, or the task ID `processParsedData`
 
