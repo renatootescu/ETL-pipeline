@@ -13,13 +13,13 @@ from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 import psycopg2
 
 # select the database system to be used: mongoDB (noSQL) or Amazon Redshift (RDBMS)
-# database = 'mongoDB'
-database = 'Redshift'
+database = 'mongoDB'
+# database = 'Redshift'
 
 if database == 'mongoDB':
     # connect to the MONGO database
     # the mongo DB connection string
-    client = pymongo.MongoClient('mongoDB_connection_string')
+    client = pymongo.MongoClient('mongodb://root:1234@localhost')
     # the database to be used
     db = client.testairflow
 
@@ -71,12 +71,13 @@ def getDBdate(ti):
             try:
                 fetchedDate = dateDoc[0]['date'].strftime('%Y-%m-%d')
             except:
-                fetchedDate = '2020-01-01'
+                fetchedDate = '2022-01-01'
 
         else:
             # >>> use the AMAZON REDSHIFT database
             # set up the connection to the Redshift database
-            conn = psycopg2.connect(f'dbname={dbname} host={host} port={port} user={user} password={password}')
+            conn = psycopg2.connect(
+                f'dbname={dbname} host={host} port={port} user={user} password={password}')
             # start the database cursor
             cursor = conn.cursor()
             # grab the latest date from the counties collection
@@ -111,7 +112,8 @@ def getLastDate(ti):
     """
 
     # pull the xcom data (in this case a list containing only one element: the date string or None)
-    fetchedDate = ti.xcom_pull(key='fetchedDate', task_ids=['getLastProcessedDate'])
+    fetchedDate = ti.xcom_pull(key='fetchedDate', task_ids=[
+                               'getLastProcessedDate'])
     # if the date is None then execute the 'parseJsonFile' task, else execute the 'endRun' task
     if fetchedDate[0] is not None:
         return 'parseJsonFile'
@@ -128,7 +130,8 @@ def readJsonData(ti):
     """
 
     # get the date data from the xcom
-    fetchedDate = ti.xcom_pull(key='fetchedDate', task_ids=['getLastProcessedDate'])
+    fetchedDate = ti.xcom_pull(key='fetchedDate', task_ids=[
+                               'getLastProcessedDate'])
     # grab the first element (the date string) from the list pulled from xcom and convert it from string to datetime
     lastDBDate = datetime.datetime.strptime(fetchedDate[0], '%Y-%m-%d')
 
@@ -177,7 +180,8 @@ def readJsonData(ti):
                         # save the date in the dict with the key 'dateFor'
                         parsedLine['dateFor'] = key
                         # update the new dict (add/append) with the required json data for each date
-                        parsedLine.update(jsonData["historicalData"][key]['countyInfectionsNumbers'])
+                        parsedLine.update(
+                            jsonData["historicalData"][key]['countyInfectionsNumbers'])
                         # save the new dict to the list created above
                         dfData.append(parsedLine)
 
@@ -208,7 +212,8 @@ def uploadToDB(ti):
     results = '/opt/airflow/sparkFiles/results.csv'
 
     # get the date from the xcom
-    fetchedDate = ti.xcom_pull(key='fetchedDate', task_ids=['getLastProcessedDate'])
+    fetchedDate = ti.xcom_pull(key='fetchedDate', task_ids=[
+                               'getLastProcessedDate'])
     lastDBDate = fetchedDate[0]
 
     # read the results CSV to a Pandas dataframe
@@ -239,7 +244,7 @@ def uploadToDB(ti):
                      sep=',',
                      header=True,
                      index=False)
-        #upload results csv to S3
+        # upload results csv to S3
         # s3 hook object
         hook = S3Hook()
         # name of the file in the AWS s3 bucket
@@ -255,7 +260,8 @@ def uploadToDB(ti):
         )
 
         # set up the connection to the Redshift database
-        conn = psycopg2.connect(f'dbname={dbname} host={host} port={port} user={user} password={password}')
+        conn = psycopg2.connect(
+            f'dbname={dbname} host={host} port={port} user={user} password={password}')
         # start the database cursor
         cursor = conn.cursor()
         # COPY the data from the s3 loaded file into the Redshift counties collection.
